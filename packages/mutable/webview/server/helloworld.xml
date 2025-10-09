@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root
+    xmlns:flow="flow"
+    xmlns:bem="bem"
+    xmlns:tag="tag"
+    xmlns:ref="ref"
+    xmlns:text="text"
+    xmlns:attr="attr"
+    xmlns:attr.js="attr.js"
+>
+    <declare name="root" props="time">
+        <ref:file-grid />
+    </declare>
+
+
+    <declare name="file-grid">
+        <tag:div bem:file-grid="true">
+            <ref:file-header />
+            <ref:file-controls />
+            <ref:file-items />
+            <ref:file-pagination />
+        </tag:div>
+    </declare>
+
+
+    <declare name="file-header">
+        <tag:div bem:file-grid.header="true">
+            <tag:h1 bem:file-grid.title="true">
+                <text:js>return "混合排列文件网格"</text:js>
+            </tag:h1>
+            <tag:p bem:file-grid.description="true">
+                <text:js>return "大图标和小图标混合排列，大图标整体排序靠前"</text:js>
+            </tag:p>
+        </tag:div>
+
+    </declare>
+
+    <declare name="file-controls">
+        <tag:div bem:file-grid.controls="true">
+            <tag:div bem:file-grid.search="true">
+                <tag:input bem:file-grid.search-input="true">
+                </tag:input>
+            </tag:div>
+            <tag:div bem:file-grid.actions="true">
+                <tag:button bem:file-grid.action-button="true">
+                    <text:js>return "新建"</text:js>
+                </tag:button>
+                <tag:button bem:file-grid.action-button="true">
+                    <text:js>return "上传"</text:js>
+                </tag:button>
+            </tag:div>
+        </tag:div>
+    </declare>
+    <declare name="file-items">
+        <tag:div bem:file-grid.items="true">
+            <flow:loop value="isLarge" js="new Array(3).fill(true)">
+                <ref:file-item bind="{isLarge}"></ref:file-item>
+            </flow:loop>
+            <flow:loop value="isLarge" js="new Array(6).fill(false)">
+                <ref:file-item bind="{isLarge}"></ref:file-item>
+            </flow:loop>
+        </tag:div>
+    </declare>
+
+    <declare name="file-item" props="isLarge">
+        <tag:div bem:file-grid.item="true" bem:file-grid.item.large="isLarge">
+            <tag:div bem:file-grid.item-icon-container="true">
+            </tag:div>
+            <tag:div bem:file-grid.item-name="true">
+                <text:js>return "产品设计图"</text:js>
+            </tag:div>
+            <tag:div bem:file-grid.item-meta="true">
+                <text:js>return "2023-06-08 · 15个文件"</text:js>
+            </tag:div>
+            <tag:div bem:file-grid.item-description="true">
+                <text:js>return "包含UI设计稿、图标资源和视觉规范文档"</text:js>
+            </tag:div>
+        </tag:div>
+    </declare>
+
+    <declare name="file-pagination">
+    </declare>
+
+    <bem:block name="file-grid">
+        <bem:css><![CDATA[
+            &{
+                max-width: 1400px;
+                margin: 0 auto;
+                background-color: #fff;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                overflow: hidden;
+            }       
+                
+            & *{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            } 
+        ]]>
+        </bem:css>
+        <header>
+            <bem:css><![CDATA[
+            &{
+                padding: 20px 24px;
+                border-bottom: 1px solid #eee;
+            } 
+            ]]>
+            </bem:css>
+
+            <title>
+                <bem:css><![CDATA[
+            &{
+                font-size: 24px;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #222;
+            }
+                ]]>
+                </bem:css>
+            </title>
+
+            <description>
+                <bem:css><![CDATA[
+            &{
+                color: #666;
+                font-size: 14px;
+            }
+                ]]>
+                </bem:css>
+            </description>
+        </header>
+
+
+        <controls>
+            <bem:css><![CDATA[
+            &{
+                display: flex;
+                flex-wrap: wrap;
+                gap: 16px;
+                padding: 16px 24px;
+                border-bottom: 1px solid #eee;
+                align-items: center;
+            }        
+
+            ]]>
+            </bem:css>
+
+            <search>
+                <bem:css><![CDATA[
+            &{
+                flex: 1;
+                min-width: 250px;
+                position: relative;
+            }
+                ]]>
+                </bem:css>
+
+
+                <search-input>
+                    <bem:css><![CDATA[
+            &{
+                width: 100%;
+                padding: 10px 12px 10px 40px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 14px;
+                transition: border-color 0.2s;
+            }
+                ]]>
+                </bem:css>
+                </search-input>
+
+            </search>
+
+            <actions>
+                <bem:css><![CDATA[
+            &{
+                margin-left: auto;
+                display: flex;
+                gap: 8px;
+            }
+                ]]>
+                </bem:css>
+
+
+                <action-button>
+                    <bem:css><![CDATA[
+            &{
+                padding: 8px 16px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: #fff;
+                color: #666;
+                font-size: 14px;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.2s;
+            }
+                ]]>
+                </bem:css>
+                </action-button>
+            </actions>
+        </controls>
+
+        <items>
+            <bem:css><![CDATA[
+            &{
+                padding: 24px;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+                align-items: start;
+            }        
+
+            ]]>
+            </bem:css>
+
+            <item>
+                <bem:css><![CDATA[
+            &{
+                width: 100%;
+                cursor: pointer;
+                transition: all 0.2s;
+                border-radius: 6px;
+                padding: 12px;
+                position: relative;
+                display: flex;
+                flex-direction: column;
+            }
+
+            &:hover{
+                background-color: #f5f5f5;
+                transform: translateY(-2px);
+            }
+                ]]>
+                </bem:css>
+
+                <bem:css mod="large"><![CDATA[
+            &{
+                grid-column: span 2;
+                grid-row: span 2;
+            }
+
+            & .file-grid__item-icon-container{
+                width: 140px;
+                height: 140px;
+            }
+                ]]>
+                </bem:css>
+
+                <item-icon-container>
+                    <bem:css><![CDATA[
+            &{
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                background-color: #f9f9f9;
+                transition: background-color 0.2s;
+            }
+                ]]>
+                </bem:css>
+                </item-icon-container>
+
+                <item-name>
+                    <bem:css><![CDATA[
+            &{
+                font-size: 14px;
+                color: #333;
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-bottom: 6px;
+            }
+                ]]>
+                </bem:css>
+                </item-name>
+
+
+                <item-meta>
+                    <bem:css><![CDATA[
+            &{
+                font-size: 12px;
+                color: #666;
+                text-align: center;
+                margin-bottom: 8px;
+            }
+                ]]>
+                </bem:css>
+                </item-meta>
+
+                <item-description>
+                    <bem:css><![CDATA[
+            &{
+                font-size: 13px;
+                color: #666;
+                text-align: center;
+                line-height: 1.4;
+                margin-top: auto;
+            }
+                ]]>
+                </bem:css>
+                </item-description>
+            </item>
+
+
+        </items>
+    </bem:block>
+</root>

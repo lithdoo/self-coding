@@ -1,0 +1,23 @@
+{
+  "target": "es2021",
+  "include": [
+    "**/*",
+    "../../packages/**/*",
+    "../../projects/**/*"
+  ],
+  "compilerOptions": {
+    "module": "commonjs",
+    "resolveJsonModule": true,
+    "downlevelIteration":true,
+    "esModuleInterop": true,
+        "strict": true, 
+    "paths": {
+      "@pkg/*": [
+        "../../packages/*"
+      ],
+      "@proj/*": [
+        "../../projects/*"
+      ],
+    }
+  },
+}

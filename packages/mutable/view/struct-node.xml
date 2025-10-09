@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root
+    xmlns:flow="flow"
+    xmlns:bem="bem"
+    xmlns:tag="tag"
+    xmlns:ref="ref"
+    xmlns:text="text"
+    xmlns:attr="attr"
+    xmlns:attr.js="attr.js"
+>
+    <declare name="render-icon" props="">
+        <tag:div bem:entity-node.head-icon="true">
+            <tag:svg bem:entity-node.head-icon-svg="true">
+                <tag:use attr:xlink.href="#vx-base-table" />
+            </tag:svg>
+        </tag:div>
+    </declare>
+
+
+    <declare name="render-head" props="entity,view,client">
+        <tag:div bem:entity-node.head="true">
+
+            <tag:input>
+                <tag:bind attr="type">return "checkbox"</tag:bind>
+                <tag:bind attr="checked"><![CDATA[
+                console.log(client)
+
+                if(window.clientdata){
+                    window.clientdata.push(client)
+                }else{
+                    window.clientdata = [client]
+                }
+                const checked = client.includes(view.id)
+
+                return checked
+                ]]></tag:bind>
+                <tag:bind on="change"><![CDATA[
+              
+                return ["toggleSelectStruct",view.id] 
+                ]]></tag:bind>
+            </tag:input>
+            <ref:render-icon />
+            <text:js>
+                const name = entity.keyName
+                const label = entity.desc
+                return name + (label ? ` ( ${label} )` : '')
+            </text:js>
+        </tag:div>
+    </declare>
+
+    <declare name="render-body" props="entity">
+        <tag:div bem:entity-node.body="true">
+            <flow:loop value="field" js="entity.fields">
+                <ref:render-field bind="{field}"></ref:render-field>
+            </flow:loop>
+        </tag:div>
+    </declare>
+
+    <declare name="render-field" props="field">
+        <tag:div bem:entity-node.field="true">
+            <tag:div bem:entity-node.field-name="true">
+                <text:js>return field.name</text:js>
+            </tag:div>
+            <tag:div bem:entity-node.field-type="true">
+                <text:js>return field.type</text:js>
+            </tag:div>
+        </tag:div>
+    </declare>
+
+    <declare name="render-node" props="fullData,clientdata">
+        <tag:div bem:entity-node="true">
+            <tag:div bem:entity-node.color-bar="true" />
+            <ref:render-head bind="{entity:fullData.data,view:fullData.view , client:clientdata}" />
+            <ref:render-body bind="{entity:fullData.data}" />
+        </tag:div>
+    </declare>
+
+    <bem:block name="entity-node">
+        <bem:css><![CDATA[
+            &{
+               border: 3px solid rgb(51 65 85);
+               border-radius: 6px;
+               background: #2F3035;
+               color: #fff;
+               height:100%;
+               width: 100%;
+               display:flex;
+               flex-direction: column;
+            }        
+        ]]></bem:css>
+
+
+        <color-bar>
+            <bem:css><![CDATA[
+                &{
+                    background: #66ccff;
+                    height: 6px;
+                    flex: 0 0 auto;
+                    border-radius: 3px 3px 0 0;
+                }        
+            ]]></bem:css>
+        </color-bar>
+
+        <head>
+            <bem:css><![CDATA[
+                &{
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 32px;
+                    flex: 0 0 auto;
+                    line-height:  32px;
+                    background: rgb(15 23 42);
+                    font-size: 14px;
+                    padding: 0 4px;
+                    color: rgba(255,255,255,0.85);
+                    font-weight: 800;
+                }        
+            ]]></bem:css>
+
+            <table-icon>
+                <bem:css><![CDATA[
+                    &{
+                        margin: 0 8px 0 4px;
+                        display: flex;
+                        align-items: center;
+                    }        
+                ]]></bem:css>
+
+            </table-icon>
+        </head>
+
+        <body>
+            <bem:css><![CDATA[ 
+                &{
+                    background: rgb(2,6,32);
+                    border-radius: 0 0 3px 3px;
+                    overflow: auto;
+                    flex: 1 1 auto;
+                    height: 0;
+                }     
+            ]]></bem:css>
+
+
+            <field>
+                <bem:css><![CDATA[ 
+                    &{
+                        font-size: 14px;
+                        color: rgba(255,255,255,0.85);
+                        padding: 0 12px;
+                        display: flex;
+                        flex-direction: row;
+                        border-top: 1px solid rgb(30,41,59);
+                        height: 30px;
+                        align-items: center;
+                    }     
+                ]]></bem:css>
+
+                <field-name>
+                    <bem:css><![CDATA[ 
+                        &{
+                            flex: 1 1 0;
+                            width: 0;
+                            overflow: hidden;
+                        }     
+                    ]]></bem:css>
+                </field-name>
+
+
+                <field-type>
+                    <bem:css><![CDATA[ 
+                        &{
+                            color: rgba(255,255,255,0.45)
+                        }     
+                    ]]></bem:css>
+                </field-type>
+            </field>
+        </body>
+
+        <table-name>
+            <bem:css><![CDATA[
+                &{
+                    display: flex;
+                    align-items: center;
+                    justify-content: start;
+                    height: 32px;
+                    line-height: 32px;
+                    background: rgb(15 23 42);
+                    font-size: 14px;
+                    padding: 0 4px;
+                    color: rgba(255,255,255,0.85);
+                    font-weight: 800;
+                }        
+            ]]></bem:css>
+        </table-name>
+
+
+        <field-list>
+            <bem:css><![CDATA[
+                &{
+                    background: rgb(2,6,32);
+                    border-radius: 0 0 3px 3px;
+                    overflow: auto;
+                }        
+            ]]></bem:css>
+        </field-list>
+    </bem:block>
+</root>

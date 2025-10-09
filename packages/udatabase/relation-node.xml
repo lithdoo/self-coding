@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root
+    xmlns:flow="flow"
+    xmlns:bem="bem"
+    xmlns:tag="tag"
+    xmlns:ref="ref"
+    xmlns:text="text"
+    xmlns:attr="attr"
+    xmlns:attr.js="attr.js"
+>
+    <declare name="render-icon" props="">
+        <tag:div bem:relation-node.head-icon="true">
+            <tag:svg bem:relation-node.head-icon-svg="true">
+                <tag:use attr:xlink.href="#vx-base-table" />
+            </tag:svg>
+        </tag:div>
+    </declare>
+
+
+    <declare name="render-head" props="entity">
+        <tag:div bem:relation-node.head="true">
+            <ref:render-icon />
+            <text:js>
+                const name = entity.keyName
+                .replace('__','【')
+                .replace('__','】')
+                const label = entity.desc
+                return name + (label ? ` ( ${label} )` : '')
+            </text:js>
+        </tag:div>
+    </declare>
+
+    <declare name="render-body" props="entity">
+        <tag:div bem:relation-node.body="true">
+            <flow:loop value="field" js="entity.fields">
+                <ref:render-field bind="{field,relations:entity.relations}"></ref:render-field>
+            </flow:loop>
+        </tag:div>
+    </declare>
+
+    <declare name="render-field" props="field,relations">
+        <tag:div bem:relation-node.field="true">
+            <tag:div bem:relation-node.field-name="true">
+                <tag:span>
+                    <text:js>
+                        return field.name
+                    </text:js>
+                </tag:span>
+                <tag:span bem:relation-node.field-name-target="true">
+                    <text:js><![CDATA[
+                        const target = relations.find(v=>v.field === field.name)
+                        if(target) return `【${target.struct}】`
+                        return '' 
+                    ]]>
+                    </text:js>
+                </tag:span>
+            </tag:div>
+            <tag:div bem:relation-node.field-type="true">
+                <text:js>return field.type</text:js>
+            </tag:div>
+        </tag:div>
+    </declare>
+
+    <declare name="render-node" props="fullData">
+        <tag:div bem:relation-node="true">
+            <tag:div bem:relation-node.color-bar="true" />
+            <ref:render-head bind="{entity:fullData.data}" />
+            <ref:render-body bind="{entity:fullData.data}" />
+        </tag:div>
+    </declare>
+
+    <bem:block name="relation-node">
+        <bem:css><![CDATA[
+            &{
+               border: 3px solid rgb(51 65 85);
+               border-radius: 6px;
+               background: #2F3035;
+               color: #fff;
+               height:100%;
+               width: 100%;
+               display:flex;
+               flex-direction: column;
+            }        
+        ]]></bem:css>
+
+
+        <color-bar>
+            <bem:css><![CDATA[
+                &{
+                    background: #f63e02;
+                    height: 6px;
+                    flex: 0 0 auto;
+                    border-radius: 3px 3px 0 0;
+                }        
+            ]]></bem:css>
+        </color-bar>
+
+        <head>
+            <bem:css><![CDATA[
+                &{
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 32px;
+                    flex: 0 0 auto;
+                    line-height:  32px;
+                    background: rgb(15 23 42);
+                    font-size: 14px;
+                    padding: 0 4px;
+                    color: rgba(255,255,255,0.85);
+                    font-weight: 800;
+                }        
+            ]]></bem:css>
+
+            <table-icon>
+                <bem:css><![CDATA[
+                    &{
+                        margin: 0 8px 0 4px;
+                        display: flex;
+                        align-items: center;
+                    }        
+                ]]></bem:css>
+
+            </table-icon>
+        </head>
+
+        <body>
+            <bem:css><![CDATA[ 
+                &{
+                    background: rgb(2,6,32);
+                    border-radius: 0 0 3px 3px;
+                    overflow: auto;
+                    flex: 1 1 auto;
+                    height: 0;
+                }     
+            ]]></bem:css>
+
+
+            <field>
+                <bem:css><![CDATA[ 
+                    &{
+                        font-size: 14px;
+                        color: rgba(255,255,255,0.85);
+                        padding: 0 12px;
+                        display: flex;
+                        flex-direction: row;
+                        border-top: 1px solid rgb(30,41,59);
+                        height: 30px;
+                        align-items: center;
+                    }     
+                ]]></bem:css>
+
+                <field-name>
+                    <bem:css><![CDATA[ 
+                        &{
+                            flex: 1 1 0;
+                            width: 0;
+                            overflow: hidden;
+                        }     
+                    ]]></bem:css>
+                </field-name>
+
+                <field-name-target>
+                    <bem:css><![CDATA[ 
+                        &{
+                            color:#66ccff
+                        }     
+                    ]]>
+                    </bem:css>
+                </field-name-target>
+
+                <field-type>
+                    <bem:css><![CDATA[ 
+                        &{
+                            color: rgba(255,255,255,0.45)
+                        }     
+                    ]]></bem:css>
+                </field-type>
+            </field>
+        </body>
+
+        <table-name>
+            <bem:css><![CDATA[
+                &{
+                    display: flex;
+                    align-items: center;
+                    justify-content: start;
+                    height: 32px;
+                    line-height: 32px;
+                    background: rgb(15 23 42);
+                    font-size: 14px;
+                    padding: 0 4px;
+                    color: rgba(255,255,255,0.85);
+                    font-weight: 800;
+                }        
+            ]]></bem:css>
+        </table-name>
+
+
+        <field-list>
+            <bem:css><![CDATA[
+                &{
+                    background: rgb(2,6,32);
+                    border-radius: 0 0 3px 3px;
+                    overflow: auto;
+                }        
+            ]]></bem:css>
+        </field-list>
+    </bem:block>
+</root>

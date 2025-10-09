@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root
+    xmlns:flow="flow"
+    xmlns:bem="bem"
+    xmlns:tag="tag"
+    xmlns:ref="ref"
+    xmlns:text="text"
+    xmlns:attr="attr"
+    xmlns:attr.js="attr.js"
+>
+    <declare name="root" props="time">
+        <tag:h1>
+            <tag:span>
+                <text:js>
+                    return "HELLO WORLD!!! TIME:" + time
+                </text:js>
+            </tag:span>
+        </tag:h1>
+    </declare>
+
+
+    <declare name="file-grid">
+        <tag:div bem:file-grid.header="true">
+            <ref:file-header />
+            <ref:file-controls />
+            <ref:file-items />
+            <ref:file-pagination />
+        </tag:div>
+    </declare>
+
+
+    <declare name="file-header">
+        <tag:div bem:file-grid.header="true">
+            <tag:h1 bem:file-grid.title="true">
+                <text:js>return "混合排列文件网格"</text:js>
+            </tag:h1>
+            <tag:h1 bem:file-grid.description="true">
+                <text:js>return "大图标和小图标混合排列，大图标整体排序靠前"</text:js>
+            </tag:h1>
+        </tag:div>
+
+    </declare>
+    <declare name="file-controls">
+    </declare>
+    <declare name="file-items">
+    </declare>
+    <declare name="file-pagination">
+    </declare>
+    <bem:block name="file-grid">
+    </bem:block>
+</root>

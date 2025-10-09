@@ -1,0 +1,19 @@
+{
+  "include": [
+    "/**/*",
+    "../packages/**/*",
+  ],
+  "exclude": [
+    "src/**/__tests__/*"
+  ],
+  "compilerOptions": {
+    "target": "es2021",
+    "module": "commonjs",
+    "esModuleInterop":true,
+    "paths": {
+      "@pkg/*": [
+        "../packages/*"
+      ]
+    }
+  }
+}

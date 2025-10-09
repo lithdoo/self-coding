@@ -1,0 +1,28 @@
+{
+  "name": "ts-run",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node -r tsconfig-paths/register ./index.ts",
+    "esno": "esno ./index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "koa": "^3.0.1",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@types/koa": "^3.0.0",
+    "@types/ws": "^8.18.1",
+    "esno": "^4.8.0",
+    "remark-parse": "^11.0.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.2",
+    "unified": "^11.0.5",
+    "unist": "^0.0.1",
+    "unist-util-visit": "^5.0.0"
+  }
+}
