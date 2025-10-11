@@ -15,6 +15,7 @@
     "ant-design-vue": "^4.2.6",
     "archiver": "^7.0.1",
     "archiver-zip-encrypted": "^2.0.0",
+    "nanoid": "^5.1.6",
     "nodejs-file-downloader": "^4.13.0",
     "vue": "^3.5.18"
   },

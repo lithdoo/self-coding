@@ -8,17 +8,17 @@
     xmlns:attr="attr"
     xmlns:attr.js="attr.js"
 >
-    <declare name="root" props="time">
-        <ref:file-grid />
+    <declare name="root" props="files">
+        <ref:file-grid bind="{files}" />
     </declare>
 
 
-    <declare name="file-grid">
+    <declare name="file-grid" props="files">
         <tag:div bem:file-grid="true">
-            <ref:file-header />
-            <ref:file-controls />
-            <ref:file-items />
-            <ref:file-pagination />
+            <ref:file-header bind="{files}" />
+            <ref:file-controls bind="{files}" />
+            <ref:file-items bind="{files}" />
+            <ref:file-pagination bind="{files}" />
         </tag:div>
     </declare>
 
@@ -51,31 +51,32 @@
             </tag:div>
         </tag:div>
     </declare>
-    <declare name="file-items">
+    <declare name="file-items" props="files">
         <tag:div bem:file-grid.items="true">
-            <flow:loop value="isLarge" js="new Array(3).fill(true)">
-                <ref:file-item bind="{isLarge}"></ref:file-item>
-            </flow:loop>
-            <flow:loop value="isLarge" js="new Array(6).fill(false)">
-                <ref:file-item bind="{isLarge}"></ref:file-item>
+            <flow:loop value="file" js="files">
+                <ref:file-item bind="{file}"></ref:file-item>
             </flow:loop>
         </tag:div>
     </declare>
 
-    <declare name="file-item" props="isLarge">
-        <tag:div bem:file-grid.item="true" bem:file-grid.item.large="isLarge">
+    <declare name="file-item" props="file">
+        <tag:div bem:file-grid.item="true"
+            bem:file-grid.item.large="file.extname === '.png' || file.extname === '.jpg'">
             <tag:div bem:file-grid.item-icon-container="true">
-
+                <tag:img>
+                    <tag:bind attr="src">return "http://localhost:6679/file?path="+
+                        encodeURIComponent(file.filepath)</tag:bind>
+                </tag:img>
             </tag:div>
-            <tag:div bem:file-grid.item-name="true">
-                <text:js>return "产品设计图"</text:js>
+            <tag:div bem:file-grid.item-name="true" attr="{id:'23'}">
+                <text:js>return file.title??file.name</text:js>
             </tag:div>
             <tag:div bem:file-grid.item-meta="true">
-                <text:js>return "2023-06-08 · 15个文件"</text:js>
+                <text:js>return file.desc?? file.sizeformat</text:js>
             </tag:div>
-            <tag:div bem:file-grid.item-description="true">
+            <!-- <tag:div bem:file-grid.item-description="true">
                 <text:js>return "包含UI设计稿、图标资源和视觉规范文档"</text:js>
-            </tag:div>
+            </tag:div> -->
         </tag:div>
     </declare>
 
@@ -265,6 +266,13 @@
                 border-radius: 8px;
                 background-color: #f9f9f9;
                 transition: background-color 0.2s;
+            }
+
+            &>img{
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            
             }
                 ]]>
                 </bem:css>

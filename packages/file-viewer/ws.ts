@@ -1,13 +1,30 @@
 import { wrapWebsocket } from "@pkg/ksrpc/wsc/node"
-import { KWSRPCServer, KWSRPCServerConversation, SyncKWSRPCServerConnection } from "@pkg/ksrpc/wss"
+import { KWSRPCServerConversation, SyncKWSRPCServerConnection, KWSRPCServer } from "@pkg/ksrpc/wss"
 import { readFileSync } from "fs"
 import path from "path"
 import WebSocket, { RawData } from "ws"
+import { FileWithInfo } from "./base"
+import { startFileServer } from './file-server'
 
 
 
 
- class KWSRPCServerSingleClientConversation implements KWSRPCServerConversation {
+
+class KWSRPCServerSingleClientConversation implements KWSRPCServerConversation {
+
+
+
+
+    constructor(public fileList: FileList) {
+        fileList.onChange = () => {
+            this.reload()
+        }
+        try{ 
+            startFileServer(6679)
+        }catch(_e){
+
+        }
+    }
 
     connection?: SyncKWSRPCServerConnection
 
@@ -26,22 +43,14 @@ import WebSocket, { RawData } from "ws"
             params: [],
             call: async () => {
                 setTimeout(() => {
-                    this.connection.request({
-                        method: 'mut-web-view/server/init',
-                        params: {
-                            timestamp: this.timestamp,
-                            data: { 'time': '123' },
-                            rootComponent: 'root',
-                            template: readFileSync(path.resolve(__dirname, './helloworld.xml')).toString()
-                        }
-                    })
+                    this.reload()
                 })
                 return null
             }
         })
     }
 
-    disconnect(connection) {
+    disconnect(connection: SyncKWSRPCServerConnection) {
         if (this.connection === connection) {
             this.connection = undefined
         }
@@ -49,17 +58,34 @@ import WebSocket, { RawData } from "ws"
 
 
     reload() {
-
+        this.connection?.request({
+            method: 'mut-web-view/server/init',
+            params: {
+                timestamp: this.timestamp,
+                data: { 'files': [...this.fileList.list] },
+                rootComponent: 'root',
+                template: readFileSync(path.resolve(__dirname, './helloworld.xml')).toString()
+            }
+        })
     }
 
 }
 
 
+class FileList {
+    list: FileWithInfo[] = []
+    onChange?: () => void
+    update(list: FileWithInfo[]) {
+        this.list = list
+        this.onChange?.()
+    }
+}
 
 
-const server = new class extends KWSRPCServer<SyncKWSRPCServerConnection> {
+export class FileViewerRPCServer extends KWSRPCServer<SyncKWSRPCServerConnection> {
 
     conversations = new Map<string, KWSRPCServerConversation>()
+    fileList = new FileList()
 
     constructor() {
         super(6678)
@@ -76,7 +102,7 @@ const server = new class extends KWSRPCServer<SyncKWSRPCServerConnection> {
 
             getConversation(id: string): KWSRPCServerConversation {
                 const conversation = server.conversations.get(id)
-                    ?? new KWSRPCServerSingleClientConversation()
+                    ?? new KWSRPCServerSingleClientConversation(server.fileList)
                 server.conversations.set(id, conversation)
                 return conversation
             }
@@ -92,5 +118,3 @@ const server = new class extends KWSRPCServer<SyncKWSRPCServerConnection> {
         }
     }
 }
-
-server.start()

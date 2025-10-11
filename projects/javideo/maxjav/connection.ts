@@ -7,24 +7,10 @@ import { Downloader } from "nodejs-file-downloader"
 import * as url from "url"
 import { select } from '@inquirer/prompts';
 import archiver from 'archiver'
-import zipEncrypted from 'archiver-zip-encrypted'
-// 注册加密支持
-archiver.registerFormat('zip-encrypted', zipEncrypted);
 
-
-const connection = new class extends UDBConnection<StructDef> {
+export const connection = new class extends UDBConnection<StructDef> {
     constructor() {
         super(path.resolve(__dirname, '../../../data-store/.maxjavr_data/index.db'))
-
-        // const list = this.select('video_page').where({ code: '601109' }).query()
-
-        // const list = this.selectWith('video_page', '__REF__video_info')
-        //     // .whereTarget({ video_code: isNull })
-        //     .whereSource({ code: '601109' })
-        //     .query()
-
-        // console.log(list)
-
     }
 
     tempPath = path.resolve(__dirname, './.temp/')
@@ -507,10 +493,10 @@ export const zipDirVideo = async (dir = 'E:\\_VR') => {
 
 }
 
-const todo = '\\\\N2\\Users\\lithd\\Downloads\\C_DOWNLOAD'
-readDirVideo(todo)
-    .then(()=>moveDirVideo(todo))
-    .then(()=>zipDirVideo(todo))
+// const todo = '\\\\N2\\Users\\lithd\\Downloads\\C_DOWNLOAD'
+// readDirVideo(todo)
+//     .then(()=>moveDirVideo(todo))
+//     .then(()=>zipDirVideo(todo))
 
 // zipDirVideo()
     ; (() => {
