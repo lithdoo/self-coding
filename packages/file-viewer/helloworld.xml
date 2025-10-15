@@ -8,17 +8,105 @@
     xmlns:attr="attr"
     xmlns:attr.js="attr.js"
 >
-    <declare name="root" props="files">
-        <ref:file-grid bind="{files}" />
+    <declare name="root" props="files,detail">
+        <ref:file-grid files="this.files" detail="this.detail" />
+    </declare>
+
+    <declare name="file-grid" props="files,detail">
+        <tag:div bem:file-grid="true">
+            <ref:file-header files="this.files" />
+            <ref:file-controls files="this.files" />
+            <tag:div bem:file-grid.main="true">
+                <ref:file-items files="this.files" />
+                <tag:div>
+                    <flow:if js="this.detail">
+                        <ref:file-detail file="this.detail" />
+                    </flow:if>
+                </tag:div>
+            </tag:div>
+            <ref:file-pagination files="this.files" />
+        </tag:div>
+    </declare>
+
+    <declare name="file-detail" props="file">
+        <tag:div bem:file-grid.detail="true">
+
+            <tag:bind on="dblclick"><![CDATA[
+                return ["detail",null] 
+                ]]></tag:bind>
+            <flow:if js="this.file.extname === '.png' || this.file.extname === '.jpg'">
+                <tag:img>
+                    <tag:bind attr="src">return "/file?path="+
+                        encodeURIComponent(this.file.filepath)</tag:bind>
+                </tag:img>
+            </flow:if>
+            <flow:if js="this.file.title">
+                <ref:file-detail-field
+                    name="'标题'" value="this.file.title"
+                ></ref:file-detail-field>
+            </flow:if>
+
+            <flow:if js="this.file.desc">
+                <ref:file-detail-field
+                    name="'描述'" value="this.file.desc"
+                ></ref:file-detail-field>
+            </flow:if>
+
+            <flow:if js="this.file.tags?.length">
+                <ref:file-detail-field
+                    name="'标签'" value="this.file.tags.map(v=>`【${v}】`).join(' ')"
+                ></ref:file-detail-field>
+            </flow:if>
+
+
+            <ref:file-detail-field
+                name="'文件名'" value="this.file.filename"
+            ></ref:file-detail-field>
+            <ref:file-detail-field
+                name="'路径'" value="this.file.filepath"
+            ></ref:file-detail-field>
+            <ref:file-detail-field
+                name="'大小'" value="this.file.sizeformat"
+            ></ref:file-detail-field>
+
+
+            <flow:if js="this.file.extra">
+                <flow:loop value="item" js="this.file.extra">
+                    <flow:if js="this.item.type === 'link'">
+                        <ref:file-detail-link
+                            name="this.item.name" value="this.item.content" link="this.item.payload"
+                        ></ref:file-detail-link>
+                    </flow:if>
+                </flow:loop>
+
+              
+            </flow:if>
+        </tag:div>
     </declare>
 
 
-    <declare name="file-grid" props="files">
-        <tag:div bem:file-grid="true">
-            <ref:file-header bind="{files}" />
-            <ref:file-controls bind="{files}" />
-            <ref:file-items bind="{files}" />
-            <ref:file-pagination bind="{files}" />
+    <declare name="file-detail-field" props="name, value">
+        <tag:div bem:file-grid.detail-field="true">
+            <tag:div bem:file-grid.detail-field-name="true">
+                <text:js>return this.name</text:js>
+            </tag:div>
+            <tag:div bem:file-grid.detail-field-value="true">
+                <text:js>return this.value</text:js>
+            </tag:div>
+        </tag:div>
+    </declare>
+
+    <declare name="file-detail-link" props="name, value, link">
+        <tag:div bem:file-grid.detail-field="true">
+            <tag:div bem:file-grid.detail-field-name="true">
+                <text:js>return this.name</text:js>
+            </tag:div>
+            <tag:div bem:file-grid.detail-field-value="true">
+                <tag:a>
+                    <text:js>return this.value</text:js>
+                    <tag:bind attr="href">return this.link</tag:bind>
+                </tag:a>
+            </tag:div>
         </tag:div>
     </declare>
 
@@ -32,17 +120,25 @@
                 <text:js>return "大图标和小图标混合排列，大图标整体排序靠前"</text:js>
             </tag:p>
         </tag:div>
-
     </declare>
+
 
     <declare name="file-controls">
         <tag:div bem:file-grid.controls="true">
             <tag:div bem:file-grid.search="true">
                 <tag:input bem:file-grid.search-input="true">
+                    <tag:bind on="change"><![CDATA[
+                        return ["search-input",null] 
+                        ]]>
+                    </tag:bind>
                 </tag:input>
             </tag:div>
             <tag:div bem:file-grid.actions="true">
                 <tag:button bem:file-grid.action-button="true">
+                    <tag:bind on="click"><![CDATA[
+                        return ["search-emit",null] 
+                        ]]>
+                    </tag:bind>
                     <text:js>return "新建"</text:js>
                 </tag:button>
                 <tag:button bem:file-grid.action-button="true">
@@ -51,29 +147,39 @@
             </tag:div>
         </tag:div>
     </declare>
+
+
     <declare name="file-items" props="files">
         <tag:div bem:file-grid.items="true">
-            <flow:loop value="file" js="files">
-                <ref:file-item bind="{file}"></ref:file-item>
+            <flow:loop value="file" js="this.files">
+                <ref:file-item file="this.file"></ref:file-item>
             </flow:loop>
         </tag:div>
     </declare>
 
     <declare name="file-item" props="file">
         <tag:div bem:file-grid.item="true"
-            bem:file-grid.item.large="file.extname === '.png' || file.extname === '.jpg'">
+            bem:file-grid.item.large="this.file.extname === '.png' || this.file.extname === '.jpg'">
+
+            <tag:bind on="click"><![CDATA[
+                return ["detail",this.file.filepath] 
+                ]]></tag:bind>
             <tag:div bem:file-grid.item-icon-container="true">
-                <tag:img>
-                    <tag:bind attr="src">return "http://localhost:6679/file?path="+
-                        encodeURIComponent(file.filepath)</tag:bind>
-                </tag:img>
+                <flow:if js="this.file.extname === '.png' || this.file.extname === '.jpg'">
+                    <tag:img>
+                        <tag:bind attr="src">return "http://localhost:6679/file?path="+
+                            encodeURIComponent(this.file.filepath)</tag:bind>
+                    </tag:img>
+                </flow:if>
             </tag:div>
             <tag:div bem:file-grid.item-name="true" attr="{id:'23'}">
-                <text:js>return file.title??file.name</text:js>
+                <text:js>return this.file.title??this.file.name</text:js>
             </tag:div>
             <tag:div bem:file-grid.item-meta="true">
-                <text:js>return file.desc?? file.sizeformat</text:js>
+                <text:js>return this.file.desc?? this.file.sizeformat</text:js>
             </tag:div>
+
+
             <!-- <tag:div bem:file-grid.item-description="true">
                 <text:js>return "包含UI设计稿、图标资源和视觉规范文档"</text:js>
             </tag:div> -->
@@ -93,6 +199,9 @@
                 border: 1px solid #ccc;
                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
                 overflow: hidden;
+                height:100vh;
+                display:flex;
+                flex-direction: column;
             }       
                 
             & *{
@@ -100,6 +209,10 @@
                 padding: 0;
                 box-sizing: border-box;
             } 
+
+            & > *{
+                flex: 0 0 auto;
+            }
         ]]>
         </bem:css>
         <header>
@@ -211,11 +324,14 @@
         <items>
             <bem:css><![CDATA[
             &{
+                flex: 1 1 0;
+                width: 0;
                 padding: 24px;
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
                 gap: 20px;
                 align-items: start;
+                overflow: auto;
             }        
 
             ]]>
@@ -272,7 +388,6 @@
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
-            
             }
                 ]]>
                 </bem:css>
@@ -319,8 +434,74 @@
                 </bem:css>
                 </item-description>
             </item>
-
-
         </items>
+
+
+        <main>
+            <bem:css><![CDATA[
+            &{
+                display:flex;
+                height:100%;
+                overflow:auto;
+                min-height 400px;
+                flex: 1 1 0;
+                height: 0;
+            }       
+            ]]>
+            </bem:css>
+        </main>
+        <detail>
+            <bem:css><![CDATA[
+            &{
+                flex:  0 0 auto;
+                width: 480px;
+                padding:12px;
+                border-left: 1px solid #ccc;
+                height:100%;
+                overflow:auto;
+            }        
+
+            & > img{
+                width: 100%;
+                border-radius: 4px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.16)
+            }   
+            ]]>
+            </bem:css>
+
+            <detail-field>
+                <bem:css><![CDATA[
+            &{
+                display:flex;
+                margin-top: 12px
+            }        
+            ]]>
+                    </bem:css>
+            </detail-field>
+
+            <detail-field-name>
+                <bem:css><![CDATA[
+            &{
+                flex: 0 0 auto;
+                min-width:80px;
+                font-weight: bolder;
+                color: #666;
+            }        
+            ]]>
+                    </bem:css>
+            </detail-field-name>
+
+
+            <detail-field-value>
+                <bem:css><![CDATA[
+            &{
+                flex: 1 1 0;
+                width: 0;
+                color: #666;
+            }        
+            ]]>
+                    </bem:css>
+            </detail-field-value>
+        </detail>
     </bem:block>
 </root>

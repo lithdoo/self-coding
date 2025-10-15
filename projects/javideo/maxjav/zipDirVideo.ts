@@ -219,7 +219,7 @@ export const zipDirVideo = async (dir = 'E:\\_VR') => {
 
 }
 
-const todo = '\\\\N2\\d 共享\\todo'
+const todo = '\\\\N2\\d_store\\_VR'
 readDirVideo(todo)
     .then(()=>moveDirVideo(todo))
     .then(()=>zipDirVideo(todo))

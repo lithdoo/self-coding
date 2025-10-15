@@ -44,7 +44,9 @@ export class WarpedElement extends WrapedNode {
     }
 
     bindEvents(events:{[key:string]: (event: Event) => void}){
-        
+         [...Object.entries(events)].forEach(([key,value])=>{
+            this.event(key,value)
+        })
     }
 
     attr(key: string, value: string | boolean) {

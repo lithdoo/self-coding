@@ -30,7 +30,8 @@ export const isMVTemplateApply = (node: MVTemplateNode): node is MVTemplateApply
 
 export type MVTemplateContext = MVTemplateGroup & {
     type: "MVTemplateContext",
-    bind: EvalRef,
+    bind?: EvalRef,
+    argus: {[key:string]:EvalRef}
 }
 
 export const isMVTemplateContext = (node: MVTemplateNode): node is MVTemplateContext => {

@@ -19,6 +19,10 @@ export class WarpedElement {
         return this.target.getAttribute(name)
     }
 
+    attrnames(){
+        return this.target.getAttributeNames()
+    }
+
     innerHTML() {
         return this.target.innerHTML
     }

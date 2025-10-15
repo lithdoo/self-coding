@@ -64,6 +64,7 @@ export class MutViewElement extends MutViewNode {
         this.updateChildren()
         this.updateEvent()
         this.updateAttr()
+        console.log('constructor',`${this.elementNode.target.className}`,this.elementNode.target)
     }
 
 
@@ -84,6 +85,7 @@ export class MutViewElement extends MutViewNode {
     }
 
     private updateChildren() {
+        // console.log(`updatechilren: ${this.elementNode.target.className}`,this.elementNode.target)
         this.currentChildren.forEach(v => v.remove())
         const innerHTML = this.innerHTML.val()
         if (typeof innerHTML === 'string') {

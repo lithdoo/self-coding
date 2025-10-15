@@ -12,12 +12,25 @@ export default defineConfig({
     vueJsx(),
     vueDevTools(),
   ],
-  server:{
-    proxy:{'/ai/':{
-      target:'http://localhost:7890/',
-      ws:true,
-      changeOrigin:true
-    }}
+  server: {
+    proxy: {
+      '/ai/': {
+        target: 'http://localhost:7890/',
+        ws: true,
+        changeOrigin: true
+      },
+      
+      '/ws/': {
+        target: 'http://localhost:6678/',
+        ws: true,
+        changeOrigin: true
+      },
+      '/file/': {
+        target: 'http://localhost:6679/',
+        ws: true,
+        changeOrigin: true
+      }
+    }
   },
   resolve: {
     alias: {

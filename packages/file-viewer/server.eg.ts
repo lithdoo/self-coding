@@ -34,7 +34,8 @@ const server = new FileViewerRPCServer()
 
 
 
-server.fileList.update(infos)
+server.fileList.updateList(infos)
 
 
 server.start()
+

@@ -36,14 +36,7 @@ type ValueField = {
     name: string
     value: EvalRef
 }
-
-type EvalRefId = string
 type VarKeyName = string
-
-
-
-
-
 class MutSplit {
 
     readonly target: Record<string, MutComputed<unknown>> = {}
@@ -99,8 +92,8 @@ class MutSplit {
 
 
 
-class RenderContext {
 
+class RenderContext {
 
     constructor(
         private readonly store: RefStore,
@@ -167,8 +160,11 @@ class RenderContext {
         try {
             const argus = Object.entries(this.getState())
             return new MutComputed((binder) =>
-                new Function(...argus.map(([v]) => v), script)
-                    .apply({ binder }, argus.map(([_, v]) => binder(v)))
+                // new Function(...argus.map(([v]) => v), script)
+                //     .apply(this.getProxyScope(binder), argus.map(([_, v]) => binder(v)))
+
+                new Function(script).apply(this.getProxyScope(binder))
+
             )
         } catch (e) {
             console.error({ this: this, script })
@@ -177,12 +173,26 @@ class RenderContext {
     }
 
 
+    private getProxyScope(binder: <T>(mut: Mutable<T>) => T) {
+        const state = this.getState()
+        return new Proxy({}, {
+            get(_target, key) {
+                if (typeof key === 'string') {
+                    const s = state[key]
+                    const value = s?binder(s):undefined
+                    return value
+                }
+                return undefined
+            }
+        })
+
+    }
+
+
     distroy() {
         [...Object.values(this.state)].forEach(v => v.dispose());
         [...this.children].forEach(v => v.distroy())
     }
-
-
 
     // todo
     attr(data: ValueField[]) {
@@ -222,8 +232,7 @@ export class MVRenderer {
 
     renderRoot(
         name: string,
-        prop: { [key: string]: MutComputed<unknown> },
-        emitter: (payload: any, event: { $event: Event, name: string }) => void
+        prop: { [key: string]: MutComputed<unknown> }
     ) {
         const component = this.global.components[name]
         if (!component) throw new Error('unknown')
@@ -258,10 +267,13 @@ export class MVRenderer {
             )
         ])
 
-        return new MutRootFragment(new MutComputed(() => [
-            ...css, this.renderNode(node.id, scope, emitter)
+        const root = new MutRootFragment(new MutComputed(() => [
+            ...css, this.renderNode(node.id, scope, (...argus) => {
+                root.$emit(...argus)
+            })
         ]), scope)
         // return this.renderNode(node.id, scope)
+        return root
     }
 
     renderChildren(id: string, context: RenderContext, emitter: (payload: any, event: { $event: Event, name: string }) => void): MutViewFragment {
@@ -305,11 +317,11 @@ export class MVRenderer {
                 const attrMuts = new MutComputed((bind) => {
                     const res: { [key: string]: any } = {};
                     [...Object.entries(attrs)].forEach(([name, list]) => {
-                        let val ;
+                        let val;
                         list.forEach(element => {
-                            if(name === 'class'){
-                                val = (val??'') + ' ' + bind(element)
-                            }else{
+                            if (name === 'class') {
+                                val = (val ?? '') + ' ' + bind(element)
+                            } else {
                                 val = bind(element)
                             }
                         });
@@ -361,11 +373,19 @@ export class MVRenderer {
             }
 
             if (isMVTemplateContext(node)) {
-                const bind = context.val(node.bind)
                 const store = this.store
-                const newContext = new RenderContext(store, new MutSplit(bind).target)
-
-                return this.renderChildren(node.id, newContext, emitter)
+                if (node.bind) {
+                    const bind = context.val(node.bind)
+                    const newContext = new RenderContext(store, new MutSplit(bind).target)
+                    return this.renderChildren(node.id, newContext, emitter)
+                } else if (node.argus) {
+                    const bind = [...Object.entries(node.argus)]
+                        .reduce((res, [name, ref]) => {
+                            return { ...res, [name]: context.val(ref) }
+                        }, {} as Record<VarKeyName, MutComputed<unknown>>)
+                    const newContext = new RenderContext(store, bind)
+                    return this.renderChildren(node.id, newContext, emitter)
+                }
             }
 
             if (isMVTemplateApply(node)) {
@@ -401,21 +421,27 @@ export class MutRootFragment extends MutViewFragment {
 
     cntr?: HTMLElement | ShadowRoot
 
+    onEmit?: (payload: any, event: { $event: Event, name: string }) => void
 
-    bind(element: HTMLElement  | ShadowRoot)  {
+
+    $emit(payload: any, event: { $event: Event, name: string }) {
+        this.onEmit?.(payload, event)
+    }
+
+    bind(element: HTMLElement | ShadowRoot) {
         this.cntr = element
         this.cntr.innerHTML = ''
         this.insertTo(this.cntr)
     }
 
 
-    insertTo(element: Element| ShadowRoot) {
+    insertTo(element: Element | ShadowRoot) {
         this.target.val().forEach(v => {
             v.appendTo(element)
         })
     }
     destroy(): void {
-        this.cntr.innerHTML = ''
+        if (this.cntr) this.cntr.innerHTML = ''
         this.cntr = undefined
         super.destroy()
         this.context.distroy()

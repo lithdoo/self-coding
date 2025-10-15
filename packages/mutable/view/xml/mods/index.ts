@@ -1,8 +1,9 @@
-import type { EvalVal } from "../../eval"
+import type { EvalRef, EvalVal } from "../../eval"
 import {
     MVTemplateComponentType, type MVTemplateElement, MVTemplateHtmlType,
     type MVTemplateContext, type MVTemplateApply, type MVTemplateText,
-    type MVTemplateLoop, MVTemplateFlowType, isMVTemplateElement
+    type MVTemplateLoop, MVTemplateFlowType, isMVTemplateElement,
+    MVTemplateCond
 } from "../../template"
 import { WarpedElement, type ParseMod, type WarpedAttr, type XMLParserContext } from "../base"
 
@@ -99,7 +100,7 @@ export const modRef = new class implements ParseMod {
         const componentName = element.name
 
 
-        const bind = element.attr('bind') ?? "{}"
+        const bind = element.attr('_bind_') ?? "{}"
         const value: EvalVal = {
             type: 'eval:js',
             content: `return ${bind}`
@@ -114,11 +115,39 @@ export const modRef = new class implements ParseMod {
 
         task.store.values[refKey] = value
 
+        const attrnames = element.attrnames()
+
+        const argus = attrnames.reduce((res, name) => {
+
+            if (name == '_bind_') {
+                return res
+            } else {
+                const text = element.attr(name) ?? "null"
+                const value: EvalVal = {
+                    type: 'eval:js',
+                    content: `return ${text}`
+                }
+
+                const ref = Object.entries(task.store.values)
+                    .find(([_key, val]) => {
+                        return value.type === val.type && value.content === val.content
+                    })?.[0]
+
+                const refKey = ref ?? Math.random().toString()
+
+                task.store.values[refKey] = value
+                return { ...res, [name]: { '_VALUE_GENERATOR_REFERENCE_': refKey } }
+            }
+
+
+        }, {} as { [key: string]: EvalRef })
+
         const templateContext: MVTemplateContext = {
             id: Math.random().toString(),
             type: MVTemplateComponentType.Context,
             isLeaf: false,
-            bind: { '_VALUE_GENERATOR_REFERENCE_': refKey }
+            argus,
+            bind: element.attr('_bind_') ? { '_VALUE_GENERATOR_REFERENCE_': refKey } : undefined
         }
 
         const templateApply: MVTemplateApply = {
@@ -215,6 +244,38 @@ export const modFlow = new class implements ParseMod {
                 valueField,
                 loopValue: { '_VALUE_GENERATOR_REFERENCE_': refKey },
                 indexField,
+                isLeaf: false,
+            }
+
+
+            context.template.children[pid] = (
+                context.template.children[pid] ?? []
+            ).concat([template.id])
+
+            context.template.values[template.id] = template
+
+            next(template.id)
+        }
+
+
+        if (element.name === 'if') {
+
+            const value: EvalVal = {
+                type: 'eval:js',
+                content: `return ${element.attr('js') ?? "false"}`
+            }
+
+            const ref = Object.entries(context.store.values)
+                .find(([_key, val]) => {
+                    return value.type === val.type && value.content === val.content
+                })?.[0]
+            const refKey = ref ?? Math.random().toString()
+            context.store.values[refKey] = value
+
+            const template: MVTemplateCond = {
+                id: Math.random().toString(),
+                type: MVTemplateFlowType.Cond,
+                test: { '_VALUE_GENERATOR_REFERENCE_': refKey },
                 isLeaf: false,
             }
 

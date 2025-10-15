@@ -7,7 +7,7 @@ import { SyncAutoReconnectKWSRPC } from "@pkg/ksrpc/wsc/web";
 
 
 export class ClientStore {
-    state: Map<string, Mutable<any>> = new Map()
+    state: Map<string, MutVal<any>> = new Map()
     ts: number = 0
     rootFragment?: MutRootFragment
     renderOption?: {
@@ -38,6 +38,10 @@ export class ClientStore {
         this.rerender()
     }
 
+    update(name: string, value: any) {
+        this.state.get(name)?.update(value)
+    }
+
     rerender() {
         this.rootFragment?.destroy()
         if (this.renderOption) {
@@ -48,12 +52,12 @@ export class ClientStore {
                 [...this.state.entries()].reduce((res, [key, val]) => {
                     res[key] = new MutComputed(binder => binder(val))
                     return res
-                }, {} as { [key: string]: MutComputed<any> }),
-                () => { }
+                }, {} as { [key: string]: MutComputed<any> })
             )
             this.rootFragment.bind(this.container)
         }
         this.onRootChanged?.()
+        return this.rootFragment
     }
 }
 
@@ -97,6 +101,27 @@ export class MutWebViewClient extends ClientStore {
         })
 
 
+
+        rpc.method({
+            name: 'mut-web-view/server/state/update',
+            params: [
+                'name', 'value', 'from', 'to'
+            ],
+            call: async (
+                name: string, value: any, from: number, to: number
+            ) => {
+                if (from === this.ts) {
+                    this.update(name, value)
+                    this.ts = to
+                } else {
+                    this.rpc.request({
+                        method: 'mut-web-view/client/reload',
+                        params: {},
+                    })
+                }
+            }
+        })
+
         this.rpc = rpc
         this.rpc.open()
     }
@@ -106,6 +131,27 @@ export class MutWebViewClient extends ClientStore {
             method: 'mut-web-view/client/reload',
             params: {},
         })
+    }
+
+    rerender(): MutRootFragment {
+        const root = super.rerender()
+        if (root) {
+            root.onEmit = (payload, event) => {
+                const inputValue = (event.$event?.target as HTMLInputElement)?.value ?? null
+                this.rpc.request({
+                    method: 'mut-web-view/client/view/event',
+                    params: {
+                        event: {
+                            name: event.name,
+                            inputValue
+                        },
+                        payload
+                    },
+                })
+            }
+
+        }
+        return root
     }
 
     destroy() {
